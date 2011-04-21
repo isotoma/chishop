@@ -1,8 +1,0 @@
-TODO
-====
-
-This file is for the chishop package specifically, for djangopypi, see 
-src/djangopypi/docs/TODO.
-
-* Random Monty Python quotes :-)
-* Whoosh full text indexing integration, maybe called djangopypi.whoosh?
