@@ -138,7 +138,6 @@ if options.environment != "dev":
     template = "[buildout]\n" \
                "extends =\n" \
                "    crane/base.cfg\n" \
-	       "    crane/project.cfg\n" \
                "    crane/fullstack.cfg\n" \
                "    crane/environment/%(environment)s/environment.cfg\n" \
                "cwd = %(cwd)s\n" \
@@ -147,7 +146,6 @@ else:
     template = "[buildout]\n"  \
                "extends =\n" \
                "    crane/base.cfg\n" \
-	       "    crane/project.cfg\n" \
                "cwd = %(cwd)s\n" \
 
 # if we're creating a new project, we have the project name

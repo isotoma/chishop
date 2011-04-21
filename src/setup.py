@@ -17,7 +17,7 @@ tests_require = [
     'Django>=1.3',
     'django-registration',
     'django-haystack',
-    'Whoosh',
+    'Whoosh==1.8.2',
 ]
 
 setup(
