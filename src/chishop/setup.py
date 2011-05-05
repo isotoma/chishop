@@ -14,7 +14,7 @@ chishop = __import__('chishop', {}, {}, [''])
 tests_require = [
     'djangopypi==0.4.4-isotoma1',
     'South==0.7.1',
-    'Django>=1.3',
+    'Django==1.3',
     'django-registration',
     'django-haystack',
     'Whoosh==1.8.2',
@@ -33,10 +33,10 @@ setup(
     install_requires=[
         'djangopypi==0.4.4-isotoma1',
         'South==0.7.1',
-        'Django>=1.3',
+        'Django==1.3',
         'django-registration',
-        'django-haystack>=1.1.0',
-        'Whoosh',
+        'django-haystack==1.1.0',
+        'Whoosh==1.8.2',
     ],
     dependency_links=[
         'https://bitbucket.org/ubernostrum/django-registration/downloads/django-registration-0.8-alpha-1.tar.gz#egg=django-registration',
