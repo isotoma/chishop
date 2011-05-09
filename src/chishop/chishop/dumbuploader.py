@@ -64,10 +64,10 @@ class DumbUploader(object):
         u.run()
     
 if __name__ == '__main__':
-    repository = 'http://themoon.isotomadev.com:8000'
+    repository = 'http://localhost:8000'
     username = 'admin'
     password = 'password'
-    filename = '/home/gjm/projects/lilly/it_trunk/plone/cache/dist/wicked-1.1.6-py2.4.egg'
+    filename = '/home/user/test.egg'
     
     uploader = DumbUploader(repository,username,password)
     uploader.setDistFile(filename)
