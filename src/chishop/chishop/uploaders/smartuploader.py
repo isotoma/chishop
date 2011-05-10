@@ -3,6 +3,8 @@
 from distutils.command.register import register
 from distutils.command.upload import upload
 from distutils.core import Distribution
+from os import listdir, chdir, getcwd
+from os.path import isdir
 from pkginfo import BDist
 
 FIELD_TRANSLATE = {'summary':'description',
@@ -73,6 +75,18 @@ class DumbUploader(object):
         u.run()
         print '%s uploaded' %(self.filename)
 
+def unpack(filename):
+    """Check what sort of package we have (tar.gz, zip or egg), unpack it and 
+    get it uploaded."""
+
+    if filename.endswith('.tar.gz'):
+        print 'tar!'
+    elif filename.endswith('.zip'):
+        print 'zip!'
+    elif filename.endswith('.egg'):
+        print 'egg!'
+    else:
+        return False
     
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -137,10 +151,17 @@ if __name__ == '__main__':
     
     (options, args) = parser.parse_args()
     if not args:
-        print '''No files to upload
-'''
+        print '''No files to upload'''
         parser.print_help()
         parser.exit(1)
+
+    # check we are dealing with a path to a dir
+    # so we can recursively upload the files
+    if not isdir(args[0]):
+        print '''Not directory, exiting'''
+        parser.print_help()
+        parser.exit(1)
+        
         
     config = read_rc_file(options.rcfile,options.repository)
     if config:
@@ -157,8 +178,14 @@ Check your pypi config file has these details and you are selecting the matching
     uploader = DumbUploader(repository,
                             username,
                             password)
-    for filename in args:
-        if os.path.exists(filename):
-            if uploader.setDistFile(filename):
-                uploader.register()
-                uploader.bdist_dumb()
+
+    chdir(args[0])
+
+    for filename in listdir(getcwd()):
+        print filename
+        if not filename.endswith('version_cache'):
+            unpack(filename)
+        #if os.path.exists(filename):
+        #    if uploader.setDistFile(filename):
+        #        uploader.register()
+        #        uploader.bdist_dumb()
