@@ -3,11 +3,10 @@
 from distutils.command.register import register
 from distutils.command.upload import upload
 from distutils.core import Distribution
-import gzip
 from os import listdir, chdir, getcwd
 from os.path import isdir
 from pkginfo import BDist
-import tarfile
+import gzip, zipfile, tarfile
 
 FIELD_TRANSLATE = {'summary':'description',
                    'home_page':'url'}
@@ -92,6 +91,8 @@ def unpack(filename):
 def decompress(filename):
     """Take either a zip or gz file and decompress it and untar it if needed."""    
     
+    failed = False
+    print filename
     if filename.endswith('.gz'):
         print "ungzipping!"
         zipped_handle = gzip.open(filename, 'rb')
@@ -112,10 +113,20 @@ def decompress(filename):
                 tar_file.close()
 
             else:
-                return False
+                print "Not a tar file!"
+                failed = True
         else:
-            return False
-    
+            print "Missing extension on filename"
+            failed = True
+
+    elif filename.endswith('.zip'):
+        print "unzipping!"
+        try:
+            zipped_file = zipfile.ZipFile(filename)
+            zipped_file.extractall()
+            zipped_file.close()
+        except:
+            print "Unable to unzip file: %s" % (filename)
 
 if __name__ == '__main__':
     from optparse import OptionParser
