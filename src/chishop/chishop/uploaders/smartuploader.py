@@ -3,9 +3,11 @@
 from distutils.command.register import register
 from distutils.command.upload import upload
 from distutils.core import Distribution
+import gzip
 from os import listdir, chdir, getcwd
 from os.path import isdir
 from pkginfo import BDist
+import tarfile
 
 FIELD_TRANSLATE = {'summary':'description',
                    'home_page':'url'}
@@ -79,15 +81,42 @@ def unpack(filename):
     """Check what sort of package we have (tar.gz, zip or egg), unpack it and 
     get it uploaded."""
 
-    if filename.endswith('.tar.gz'):
-        print 'tar!'
-    elif filename.endswith('.zip'):
-        print 'zip!'
+    if filename.endswith('.tar.gz') or filename.endswith('.zip'):
+        print 'tar/zip!'
+        decompress(filename)
     elif filename.endswith('.egg'):
         print 'egg!'
     else:
         return False
+
+def decompress(filename):
+    """Take either a zip or gz file and decompress it and untar it if needed."""    
     
+    if filename.endswith('.gz'):
+        print "ungzipping!"
+        zipped_handle = gzip.open(filename, 'rb')
+        file_contents = zipped_handle.read()
+        
+        # create a .tar file to decompress into
+        tar_filename = filename.rsplit('.', 1)[0]
+        if tar_filename:
+            output = open(tar_filename, 'wb')
+            output.writelines(file_contents)
+            output.close()
+            zipped_handle.close()
+    
+            # test we have a tar file
+            if tarfile.is_tarfile(tar_filename):
+                tar_file = tarfile.open(tar_filename)
+                tar_file.extractall()
+                tar_file.close()
+
+            else:
+                return False
+        else:
+            return False
+    
+
 if __name__ == '__main__':
     from optparse import OptionParser
     from ConfigParser import ConfigParser
