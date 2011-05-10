@@ -6,7 +6,7 @@ from distutils.core import Distribution
 from os import listdir, chdir, getcwd
 from os.path import isdir
 from pkginfo import BDist
-import gzip, zipfile, tarfile
+import gzip, subprocess, tarfile, zipfile
 
 FIELD_TRANSLATE = {'summary':'description',
                    'home_page':'url'}
@@ -233,10 +233,17 @@ Check your pypi config file has these details and you are selecting the matching
                 elif filename.endswith('.gz'):
                     files_dir = filename.rsplit('.', 2)[0]
                     
-                print files_dir
+                chdir(files_dir)
+                retcode = subprocess.Popen(["python", "setup.py", "sdist", "upload", "-r", "local", "--show-response"], 
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                output = retcode.communicate()[0]
                 
+                if not output.split('\n')[-3].count('200'):
+                    print "failed to upload: %s" % (output.split('\n')[-2].replace('-', ''))
+                
+            elif filename.endswith('egg'):
+                if os.path.exists(filename):
+                    if uploader.setDistFile(filename):
+                        uploader.register()
+                        uploader.bdist_dumb()
         chdir(args[0])
-        #if os.path.exists(filename):
-        #    if uploader.setDistFile(filename):
-        #        uploader.register()
-        #        uploader.bdist_dumb()
