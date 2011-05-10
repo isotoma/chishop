@@ -82,11 +82,11 @@ def unpack(filename):
 
     if filename.endswith('.tar.gz') or filename.endswith('.zip'):
         print 'tar/zip!'
-        decompress(filename)
-    elif filename.endswith('.egg'):
-        print 'egg!'
-    else:
-        return False
+        if decompress(filename):
+            return True
+
+def crack(filename):
+    """Crack (heh) open the egg and get the meta data out ready for upload."""
 
 def decompress(filename):
     """Take either a zip or gz file and decompress it and untar it if needed."""    
@@ -94,7 +94,7 @@ def decompress(filename):
     failed = False
     print filename
     if filename.endswith('.gz'):
-        print "ungzipping!"
+        print getcwd()
         zipped_handle = gzip.open(filename, 'rb')
         file_contents = zipped_handle.read()
         
@@ -120,13 +120,15 @@ def decompress(filename):
             failed = True
 
     elif filename.endswith('.zip'):
-        print "unzipping!"
         try:
             zipped_file = zipfile.ZipFile(filename)
             zipped_file.extractall()
             zipped_file.close()
         except:
             print "Unable to unzip file: %s" % (filename)
+            failed = True
+
+    return failed
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -224,7 +226,16 @@ Check your pypi config file has these details and you are selecting the matching
     for filename in listdir(getcwd()):
         print filename
         if not filename.endswith('version_cache'):
-            unpack(filename)
+            if not filename.endswith('egg'):
+                dir = unpack(filename)
+                if filename.endswith('.zip'):
+                    files_dir = filename.rsplit('.', 1)[0]
+                elif filename.endswith('.gz'):
+                    files_dir = filename.rsplit('.', 2)[0]
+                    
+                print files_dir
+                
+        chdir(args[0])
         #if os.path.exists(filename):
         #    if uploader.setDistFile(filename):
         #        uploader.register()
