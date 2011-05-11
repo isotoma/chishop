@@ -3,13 +3,15 @@
 """Give this script the path to uploaded python libs and it will upload to
 a egg server."""
 
+from cStringIO import StringIO
 from distutils.command.register import register
 from distutils.command.upload import upload
 from distutils.core import Distribution
+import json
 from os import listdir, chdir, getcwd
 from os.path import isdir
 from pkginfo import BDist
-import gzip, subprocess, tarfile, zipfile
+import gzip, subprocess, sys, tarfile, zipfile
 
 FIELD_TRANSLATE = {'summary':'description',
                    'home_page':'url'}
@@ -78,11 +80,17 @@ class DumbUploader(object):
         pyversion = 'any'
         self.distribution.dist_files.append((command, pyversion, self.filename))
         distribution_upload = upload(self.distribution)
+        distribution_upload.show_response = 1
         distribution_upload.username = self.username
         distribution_upload.password = self.password
         distribution_upload.repository = self.repository
+
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        
         distribution_upload.run()
-        print '%s uploaded' % (self.filename)
+        sys.stdout = old_stdout
+        return mystdout.getvalue()
 
 def unpack(filename):
     """Check what sort of package we have (tar.gz, zip or egg), unpack it and 
@@ -225,10 +233,15 @@ Check your pypi config file has these details and you are selecting the matching
 
     chdir(args[0])
 
+    log_file = open('smartuploader.json' , 'w')
+
+    results = {}
+    
     for filename in listdir(getcwd()):
         if not filename.endswith('version_cache'):
-            print "Uploading package: %s" % (filename)
-            if not filename.endswith('egg'):
+            if filename.endswith('.zip') or filename.endswith('.gz'):
+                print "Uploading package: %s" % (filename)
+
                 unpack(filename)
                 if filename.endswith('.zip'):
                     files_dir = filename.rsplit('.', 1)[0]
@@ -238,16 +251,33 @@ Check your pypi config file has these details and you are selecting the matching
                 chdir(files_dir)
                 retcode = subprocess.Popen(["python", "setup.py", "sdist", "upload", "-r", "local", "--show-response"], 
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                
                 output = retcode.communicate()[0]
                 
+                results[filename] = {'error': '', 'result': '', 'message': '', 'error': ''}
+                results[filename]['result'] = output.split('\n')[-3]
+                results[filename]['message'] = output.split('\n')[-2].replace('-', '').lstrip().rstrip()
+                
                 if not output.split('\n')[-3].count('200'):
-                    print "failed to upload: %s" % (output.split('\n')[-2].replace('-', ''))
+                    results[filename]['error'] = '1'
                 
             elif filename.endswith('egg'):
+                print "Uploading package: %s" % (filename)
+
                 if os.path.exists(filename):
                     if uploader.set_dist_file(filename):
                         uploader.register()
-                        uploader.bdist_dumb()
+                        output = uploader.bdist_dumb()
+                        results[filename] = {'error': '', 'result': '', 'message': ''}
+                        results[filename]['result'] = output.split('\n')[0]
+                        results[filename]['message'] = output.split('\n')[1].replace('-', '').lstrip().rstrip()
+                        if not output.split('\n')[-3].count('200'):
+                            results[filename]['error'] = '1'
+            else:
+                continue
                         
         #change back to root to upload next file
         chdir(args[0])
+        
+    log_file.write(json.dumps([results]))
+    log_file.close()
