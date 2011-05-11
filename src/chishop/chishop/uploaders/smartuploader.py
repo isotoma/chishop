@@ -96,9 +96,7 @@ def decompress(filename):
     """Take either a zip or gz file and decompress it and untar it if needed."""    
     
     failed = False
-    print filename
     if filename.endswith('.gz'):
-        print getcwd()
         zipped_handle = gzip.open(filename, 'rb')
         file_contents = zipped_handle.read()
         
@@ -228,8 +226,8 @@ Check your pypi config file has these details and you are selecting the matching
     chdir(args[0])
 
     for filename in listdir(getcwd()):
-        print filename
         if not filename.endswith('version_cache'):
+            print "Uploading package: %s" % (filename)
             if not filename.endswith('egg'):
                 unpack(filename)
                 if filename.endswith('.zip'):
@@ -250,4 +248,6 @@ Check your pypi config file has these details and you are selecting the matching
                     if uploader.set_dist_file(filename):
                         uploader.register()
                         uploader.bdist_dumb()
+                        
+        #change back to root to upload next file
         chdir(args[0])
