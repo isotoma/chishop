@@ -34,7 +34,7 @@ LOGGING = {
         'log_file':{
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(os.path.abspath(os.path.dirname(chishop.__file__)), 'logs/django.log'),
+            'filename': os.path.join(os.path.abspath(os.path.dirname(chishop.__file__)), 'logs/chishop.log'),
             'maxBytes': '16777216', # 16megabytes
             'formatter': 'verbose',
         },
