@@ -36,7 +36,7 @@ LOGGING = {
         'log_file':{
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOGFILE),
+            'filename': LOGFILE,
             'maxBytes': '16777216', # 16megabytes
             'formatter': 'verbose',
         },
