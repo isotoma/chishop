@@ -31,7 +31,7 @@ setup(
     url="http://ask.github.com/chishop",
     zip_safe=False,
     install_requires=[
-        'djangopypi==0.4.4-isotoma3',
+        'djangopypi==0.4.4-isotoma4',
         'South==0.7.1',
         'Django==1.3',
         'django-registration',
