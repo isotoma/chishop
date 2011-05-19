@@ -12,7 +12,7 @@ except ImportError:
 chishop = __import__('chishop', {}, {}, [''])
 
 tests_require = [
-    'djangopypi==0.4.4-isotoma3',
+    'djangopypi==0.4.4-isotoma4',
     'South==0.7.1',
     'Django==1.3',
     'django-registration',
@@ -22,7 +22,7 @@ tests_require = [
 
 setup(
     name='chishop',
-    version="0.1.1-isotoma5",
+    version="0.1.1-isotoma6",
     description='Simple PyPI server written in Django.',
     author='Ask Solem',
     author_email='askh@opera.com',
