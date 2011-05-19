@@ -22,7 +22,7 @@ tests_require = [
 
 setup(
     name='chishop',
-    version="0.1.1-isotoma6",
+    version="0.1.1-isotoma7",
     description='Simple PyPI server written in Django.',
     author='Ask Solem',
     author_email='askh@opera.com',
