@@ -6,6 +6,7 @@
 *~
 *.sqlite
 *.sqlite-journal
+buildout.cfg
 settings_local.py
 .*.sw[po]
 *.kpf
