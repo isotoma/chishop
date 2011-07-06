@@ -7,12 +7,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('')
 
-# Serve static pages.
-if settings.SERVE_MEDIA:
-    urlpatterns += patterns("django.views",
-        url(r"^%s(?P<path>.*)$" % settings.MEDIA_URL[1:], "static.serve", {
-            "document_root": settings.MEDIA_ROOT}))
-
 urlpatterns += patterns("",
     # Admin interface
     url(r'^admin/doc/', include("django.contrib.admindocs.urls")),
@@ -28,3 +22,9 @@ urlpatterns += patterns("",
     # The Chishop
     url(r'', include("djangopypi.urls")),
 )
+
+# Serve static pages.
+if settings.SERVE_MEDIA:
+    urlpatterns += patterns("django.views",
+        url(r"^%s(?P<path>.*)$" % settings.MEDIA_URL[1:], "static.serve", {
+            "document_root": settings.MEDIA_ROOT}))
