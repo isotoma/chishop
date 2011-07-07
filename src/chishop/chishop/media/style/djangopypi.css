@@ -6,3 +6,7 @@
 .highlighted {
     background-color: #FEEF00;
 }
+
+#content-main h1 {
+    margin: 5px 0px 15px 0px;
+}

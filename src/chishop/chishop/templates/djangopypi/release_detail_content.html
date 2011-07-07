@@ -1,3 +1,7 @@
+<h1>{{ release.package.name }}</h1>
+
+<div class="anchor-nav"><a href="#releases">Downloads &darr;</a></div>
+
 {% ifnotequal release release.package.latest %}
 <div>Latest: <a href="{{ release.package.latest.get_absolute_url }}">{{ release.package.latest }}</a></div>
 {% endifnotequal %}
@@ -13,6 +17,7 @@
 
 {% if release.distributions.count %}
 <div>
+<a name="releases"></a>
 <table>
 	<thead>
 		<th>Filename</th><th>Type</th><th>Py Version</th><th>Uploaded On</th><th>Size</th>
