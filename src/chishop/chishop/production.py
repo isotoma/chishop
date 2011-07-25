@@ -8,7 +8,7 @@ TEMPLATE_DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE' : 'django.db.backends.sqlite3',
-        'NAME' : os.path.join(os.path.abspath(os.path.dirname(chishop.__file__), 'devdatabase.db'),
+        'NAME' : os.path.join(os.path.abspath(os.path.dirname(chishop.__file__)), 'devdatabase.db'),
         'USER' : '',
         'PASSWORD' : '',
         'HOST' : '',
