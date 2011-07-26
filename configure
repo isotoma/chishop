@@ -14,29 +14,36 @@ def get_version(path):
 parser = OptionParser()
 parser.add_option("-e", "--environment", dest="environment",
                   help="What kind of deployment", default="dev")
+parser.add_option("-c", "--extraconfig", dest="extraconfig",
+                  help="A cfg file to add to the buildout \"extends\".",
+                  default="")
 options, args = parser.parse_args()
 
+template =  "[buildout]\n" \
+            "extends =\n" \
+            "%(extends)s\n" \
+            "cwd = %(cwd)s\n" \
+
+extends = [
+    "crane/base.cfg"
+]
 
 if options.environment != "dev":
-    template = "[buildout]\n" \
-               "extends =\n" \
-               "    crane/base.cfg\n" \
-               "    crane/fullstack.cfg\n" \
-               "    crane/environment/%(environment)s/environment.cfg\n" \
-               "cwd = %(cwd)s\n" \
+    extends.extend([
+        "crane/fullstack.cfg",
+        "crane/environment/%s/environment.cfg" % options.environment,
+    ])
 
-else:
-    template = "[buildout]\n"  \
-               "extends =\n" \
-               "    crane/base.cfg\n" \
-               "cwd = %(cwd)s\n" \
+if options.extraconfig:
+    extends.append(options.extraconfig)
 
 version = get_version("src")
 
 print "Configuring to install version", version
 
-open("buildout.cfg", "w").write(template % {
-    "environment":options.environment,
-    "cwd": os.getcwd(),
-    "version": version,
-})
+open("buildout.cfg", "w").write(
+    template % {
+        "extends": "\n".join("    %s" % e for e in extends),
+        "cwd": os.getcwd(),
+    }
+)
