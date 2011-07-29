@@ -8,8 +8,10 @@ from distutils.command.register import register
 from distutils.command.upload import upload
 from distutils.core import Distribution
 import json
-from os import listdir, chdir, getcwd
+import re
+from os import listdir, chdir, getcwd, unlink
 from os.path import isdir
+from shutil import rmtree
 from pkginfo import BDist
 import gzip, subprocess, sys, tarfile, zipfile
 
@@ -69,7 +71,7 @@ class DumbUploader(object):
         r = register(self.distribution)
         r.repository = self.repository
         r.run()
-        print '%s registered' % (self.filename)
+        print '%s registered... ' % (self.filename),
     
     def bdist_dumb(self):
         """Upload a binary distribution using the code version of:
@@ -97,48 +99,65 @@ def unpack(filename):
     get it uploaded."""
 
     if filename.endswith('.tar.gz') or filename.endswith('.zip'):
-        if decompress(filename):
-            return True
+        return decompress(filename)
 
 def decompress(filename):
-    """Take either a zip or gz file and decompress it and untar it if needed."""    
-    
-    failed = False
+    """Take either a zip or gz file and decompress it and untar it if needed."""
+
+    UNPACK_DIR = '/tmp'
+
+    def root_folder_name(compressed_file):
+        if isinstance(compressed_file, zipfile.ZipFile):
+            afile = compressed_file.namelist()[0]
+        elif isinstance(compressed_file, tarfile.TarFile):
+            afile = compressed_file.getnames()[0]
+
+        if '/' in afile:
+            afile = os.path.split(afile)[0]
+
+        return afile
+
     if filename.endswith('.gz'):
         zipped_handle = gzip.open(filename, 'rb')
         file_contents = zipped_handle.read()
         
         # create a .tar file to decompress into
-        tar_filename = filename.rsplit('.', 1)[0]
+        tar_filename = os.path.join(
+            UNPACK_DIR,
+            filename.rsplit('.', 1)[0]
+        )
+
         if tar_filename:
             output = open(tar_filename, 'wb')
             output.writelines(file_contents)
             output.close()
             zipped_handle.close()
-    
+
             # test we have a tar file
             if tarfile.is_tarfile(tar_filename):
-                tar_file = tarfile.open(tar_filename)
-                tar_file.extractall()
+                tar_file = tarfile.TarFile(tar_filename)
+                tar_file.extractall(path=UNPACK_DIR)
+                folder_name = os.path.join(UNPACK_DIR,
+                    root_folder_name(tar_file))
                 tar_file.close()
+                # Clean up the unnecessary tar file
+                unlink(tar_filename)
+                return folder_name
 
             else:
                 print "Not a tar file!"
-                failed = True
         else:
             print "Missing extension on filename"
-            failed = True
 
     elif filename.endswith('.zip'):
         try:
             zipped_file = zipfile.ZipFile(filename)
-            zipped_file.extractall()
+            zipped_file.extractall(path=UNPACK_DIR)
             zipped_file.close()
+
+            return os.path.join(UNPACK_DIR, root_folder_name(zipped_file))
         except:
             print "Unable to unzip file: %s" % (filename)
-            failed = True
-
-    return failed
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -178,6 +197,7 @@ if __name__ == '__main__':
                     if (current['server'] == repository or 
                         current['repository'] == repository):
                         return current
+                    return current
             elif 'server-login' in sections:
                 # old format
                 server = 'server-login'
@@ -233,51 +253,72 @@ Check your pypi config file has these details and you are selecting the matching
 
     chdir(args[0])
 
-    log_file = open('smartuploader.json' , 'w')
+    def parse_response(stdout, stderr):
+        if '\nServer response (200): OK' in stdout:
+            print 'Upload successful'
+            return True
+        elif '\nUpload accepted.\n' in stdout:
+            print 'Egg uploaded successfully'
+            return True
+        else:
+            print 'UPLOAD FAILED:'
+            if '[Errno 111] Connection refused' in stdout:
+                print '\t', 'CONNECTION REFUSED'
+            elif 'IOError: [Errno 2] No such file or directory: \'README.rst\'' in stderr:
+                print '\t', 'Missing README.rst'
+            else:
+                spacer = re.compile('\n[-]{50,80}(.*)')
+                server_response = spacer.search(stdout)
+                if server_response:
+                    print '\t', server_response.group(1).strip('-')
+                else:
+                    print '\n' + '-'*30
+                    print stdout, stderr
+                    print '\n' + '-'*30
+            return False
 
-    results = {}
-    
+
     for filename in listdir(getcwd()):
         if not filename.endswith('version_cache'):
             if filename.endswith('.zip') or filename.endswith('.gz'):
-                print "Uploading package: %s" % (filename)
+                print "Uploading package: %s ..." % (filename),
+                sys.stdout.flush()
 
-                unpack(filename)
-                if filename.endswith('.zip'):
-                    files_dir = filename.rsplit('.', 1)[0]
-                elif filename.endswith('.gz'):
-                    files_dir = filename.rsplit('.', 2)[0]
-                    
-                chdir(files_dir)
-                retcode = subprocess.Popen(["python", "setup.py", "sdist", "upload", "-r", "local", "--show-response"], 
-                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                
-                output = retcode.communicate()[0]
-                
-                results[filename] = {'error': '', 'result': '', 'message': '', 'error': ''}
-                results[filename]['result'] = output.split('\n')[-3]
-                results[filename]['message'] = output.split('\n')[-2].replace('-', '').lstrip().rstrip()
-                
-                if not output.split('\n')[-3].count('200'):
-                    results[filename]['error'] = '1'
-                
+                files_dir = unpack(filename)
+                print files_dir
+
+                if files_dir:
+                    chdir(files_dir)
+                    command = ['python', 'setup.py', 'sdist', 'upload', '-r',
+                                                'chishop', '--show-response']
+                    retcode = subprocess.Popen(
+                        command,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    )
+
+                    success = parse_response(*retcode.communicate())
+
+                    # Change back to root to upload next file
+                    chdir(args[0])
+                    # Clean up
+                    rmtree(files_dir)
+                    # Record success
+                    log_file_dir = '/tmp'
+                    log_file = open(os.path.join(log_file_dir, 'smart.log'), 'a')
+                    log_file.writelines(os.path.join(getcwd(), filename) + ' : ' + str(success) + ',\n')
+                    log_file.close()
+                else:
+                    print 'UPLOAD FAILED: Could not unpack.'
+
             elif filename.endswith('egg'):
-                print "Uploading package: %s" % (filename)
+                print "Uploading package: %s ..." % (filename),
 
                 if os.path.exists(filename):
                     if uploader.set_dist_file(filename):
                         uploader.register()
                         output = uploader.bdist_dumb()
-                        results[filename] = {'error': '', 'result': '', 'message': ''}
-                        results[filename]['result'] = output.split('\n')[0]
-                        results[filename]['message'] = output.split('\n')[1].replace('-', '').lstrip().rstrip()
-                        if not output.split('\n')[-3].count('200'):
-                            results[filename]['error'] = '1'
+                        parse_response(output, '')
+                chdir(args[0])
             else:
                 continue
-                        
-        #change back to root to upload next file
-        chdir(args[0])
-        
-    log_file.write(json.dumps([results]))
-    log_file.close()
