@@ -24,7 +24,7 @@ LOGGING = {
     'version': 1,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '%(levelname)s %(asctime)s %(name)s %(process)d %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -48,6 +48,14 @@ LOGGING = {
         'djangopypi.views.distutils': {
             'handlers': ['log_file'],
             'level': 'INFO'
-        }
+        },
+        'djangopypi.views.releases': {
+            'handlers': ['log_file'],
+            'level': 'INFO'
+        },
+        'djangopypi.auth_logger': {
+            'handlers': ['log_file'],
+            'level': 'INFO'
+        },
     }
-} 
+}
