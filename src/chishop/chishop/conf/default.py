@@ -20,6 +20,7 @@ ADMINS = (
 # if you're sloppy.
 DJANGOPYPI_ALLOW_VERSION_OVERWRITE = False
 DJANGOPYPI_RELEASE_UPLOAD_TO = 'dists'
+DJANGOPYPI_RELEASE_URL = '/packages/'
 
 # change to False if you do not want Django's default server to serve static pages
 SERVE_MEDIA = True
