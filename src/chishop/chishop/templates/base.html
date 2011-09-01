@@ -1,3 +1,4 @@
+{% load flatpages %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-au" xml:lang="en-au">
 <head>
@@ -33,6 +34,10 @@
                 <a href="{% url admin:index %}">Admin</a> /
               {% endif %}
               <a href="{% url django.contrib.auth.views.logout %}?next={{request.path}}">Log out</a>
+              {% get_flatpages as flatpages %}
+              {% for page in flatpages %}
+                / <a href="{{ page.url }}">{{ page.title }}</a>
+              {% endfor %}
           {% else %}
               <a href="{% url django.contrib.auth.views.login %}?next={{request.path}}">Log in</a> /
               <a href="{% url registration_register %}">Register</a>
