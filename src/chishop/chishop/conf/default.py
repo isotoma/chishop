@@ -25,9 +25,8 @@ DJANGOPYPI_RELEASE_URL = '/packages/'
 # change to False if you do not want Django's default server to serve static pages
 SERVE_MEDIA = True
 
-REGISTRATION_OPEN = True
-ACCOUNT_ACTIVATION_DAYS = 7
 LOGIN_REDIRECT_URL = "/"
+REGISTRATION_OPEN = False
 
 EMAIL_HOST = 'localhost'
 DEFAULT_FROM_EMAIL = ''
