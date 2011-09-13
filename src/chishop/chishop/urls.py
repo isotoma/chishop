@@ -13,7 +13,7 @@ urlpatterns += patterns("",
     url(r'^admin/', include(admin.site.urls)),
 
     # Registration
-    # url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^accounts/', include('registration.backends.default.urls')),
 
     url(r'^search/', 'haystack.views.basic_search', {
         'template': 'djangopypi/search_results.html',
