@@ -14,7 +14,7 @@ chishop = __import__('chishop', {}, {}, [''])
 tests_require = [
     'djangopypi==0.4.4-isotoma11',
     'South==0.7.1',
-    'Django==1.3',
+    'Django==1.3.1',
     'django-registration',
     'django-haystack',
     'Whoosh==1.8.2',
@@ -22,7 +22,7 @@ tests_require = [
 
 setup(
     name='chishop',
-    version="0.1.1-isotoma13",
+    version="0.1.1-isotoma14",
     description='Simple PyPI server written in Django.',
     author='Ask Solem',
     author_email='askh@opera.com',
@@ -31,7 +31,7 @@ setup(
     url="http://ask.github.com/chishop",
     zip_safe=False,
     install_requires=[
-        'djangopypi==0.4.4-isotoma10',
+        'djangopypi==0.4.4-isotoma11',
         'South==0.7.1',
         'Django',
         'django-registration',
