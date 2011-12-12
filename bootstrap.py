@@ -101,10 +101,11 @@ local resources, you can keep this script from going over the network.
 
 parser = OptionParser(usage=usage)
 parser.add_option("-v", "--version", dest="version",
-                          help="use a specific zc.buildout version")
+                          help="use a specific zc.buildout version", default="1.4.3")
 parser.add_option("-d", "--distribute",
-                   action="store_true", dest="use_distribute", default=False,
+                   action="store_true", dest="use_distribute", default=True,
                    help="Use Distribute rather than Setuptools.")
+parser.add_option("--distribute-version", dest="distribute_version", default="0.6.21")
 parser.add_option("--setup-source", action="callback", dest="setup_source",
                   callback=normalize_to_url, nargs=1, type="string",
                   help=("Specify a URL or file location for the setup file. "
@@ -169,6 +170,8 @@ except ImportError:
         setup_args['download_base'] = options.download_base
     if options.use_distribute:
         setup_args['no_fake'] = True
+    if options.distribute_version:
+        setup_args['version'] = options.distribute_version
     ez['use_setuptools'](**setup_args)
     if 'pkg_resources' in sys.modules:
         reload(sys.modules['pkg_resources'])
@@ -253,7 +256,15 @@ if exitcode != 0:
     sys.exit(exitcode)
 
 ws.add_entry(eggs_dir)
-ws.require(requirement)
+try:
+    ws.require(requirement)
+except pkg_resources.DistributionNotFound, e:
+    if e.args[0].project_name == 'zc.buildout':
+        print "Couldn't install %s." % str(e.args[0])
+        print "This could be due to you having a system-installed " \
+              "python-zc.buildout package."
+    raise
+
 import zc.buildout.buildout
 zc.buildout.buildout.main(args)
 if not options.eggs: # clean up temporary egg directory
