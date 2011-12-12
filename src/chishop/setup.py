@@ -33,7 +33,7 @@ setup(
     install_requires=[
         'djangopypi==0.4.4-isotoma10',
         'South==0.7.1',
-        'Django==1.3',
+        'Django',
         'django-registration',
         'django-haystack==1.1.0',
         'Whoosh==1.8.2',
