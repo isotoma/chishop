@@ -2,6 +2,9 @@
 from django.conf.urls.defaults import patterns, url, include, handler404, handler500
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required 
+
+from haystack.views import basic_search
 
 admin.autodiscover()
 
@@ -15,7 +18,7 @@ urlpatterns += patterns("",
     # Registration
     url(r'^accounts/', include('registration.backends.default.urls')),
 
-    url(r'^search/', 'haystack.views.basic_search', {
+    url(r'^search/', login_required(basic_search), {
         'template': 'djangopypi/search_results.html',
     }, name='haystack_search'),
 
