@@ -3,26 +3,22 @@ from optparse import OptionParser
 import os
 
 
-def get_version(path):
-    try :
-        p = subprocess.Popen([sys.executable, "setup.py", "-V"], stdout=subprocess.PIPE, cwd=path)
-        o, e = p.communicate()
-        return o.strip()
-    except:
-        return "bootstrap"
-
 parser = OptionParser()
 parser.add_option("-e", "--environment", dest="environment",
                   help="What kind of deployment", default="dev")
-parser.add_option("-c", "--extraconfig", dest="extraconfig",
+parser.add_option("-x", "--extraconfig", dest="extraconfig",
                   help="A cfg file to add to the buildout \"extends\".",
                   default="")
+parser.add_option("-c", "--use-checkout", dest="checkout", action="store_true",
+                  help="Don't fetch eggs for any packages where code is " \
+                       "available locally", default=False)
 options, args = parser.parse_args()
 
 template =  "[buildout]\n" \
             "extends =\n" \
             "%(extends)s\n" \
             "cwd = %(cwd)s\n" \
+            "\n%(autodevelop)s"
 
 extends = [
     "crane/base.cfg"
@@ -37,13 +33,17 @@ if options.environment != "dev":
 if options.extraconfig:
     extends.append(options.extraconfig)
 
-version = get_version("src")
+if options.checkout:
+    autodevelop = "[autodevelop]\n" \
+                  "mode = checkout"
+else:
+    autodevelop = ""
 
-print "Configuring to install version", version
 
 open("buildout.cfg", "w").write(
     template % {
         "extends": "\n".join("    %s" % e for e in extends),
         "cwd": os.getcwd(),
+        "autodevelop": autodevelop,
     }
 )

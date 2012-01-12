@@ -12,7 +12,7 @@ except ImportError:
 chishop = __import__('chishop', {}, {}, [''])
 
 tests_require = [
-    'djangopypi==0.4.4-isotoma11',
+    'djangopypi',
     'South==0.7.1',
     'Django==1.3.1',
     'django-registration',
@@ -31,7 +31,7 @@ setup(
     url="http://ask.github.com/chishop",
     zip_safe=False,
     install_requires=[
-        'djangopypi==0.4.4-isotoma11',
+        'djangopypi',
         'South==0.7.1',
         'Django',
         'django-registration',
