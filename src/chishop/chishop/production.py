@@ -24,6 +24,8 @@ HAYSTACK_WHOOSH_PATH = os.path.join(os.path.dirname(chishop.__file__), 'haystack
 DJANGOPYPI_RELEASE_UPLOAD_TO = 'SET IN BUILDOUT'
 DJANGOPYPI_RELEASE_URL = '/packages/'
 
+SENDFILE_BACKEND = 'sendfiles.backends.xsendfile'
+
 LOGFILE = '/var/log/chishop/chishop.log'
 
 LOGGING = {

@@ -20,6 +20,8 @@ HAYSTACK_SEARCH_ENGINE = 'whoosh'
 HAYSTACK_SITECONF = 'chishop.search_sites'
 HAYSTACK_WHOOSH_PATH = os.path.join(os.path.dirname(chishop.__file__), 'haystack')
 
+SENDFILE_BACKEND = 'sendfile.backends.simple'
+
 LOGGING = {
     'version': 1,
     'formatters': {
