@@ -64,6 +64,10 @@ LOGGING = {
             'handlers': ['log_file'],
             'level': 'INFO'
         },
+        'django.request' {
+            'handlers': ['log_file', 'console'],
+            'level': 'INFO',
+        }
     }
 }
 
