@@ -31,16 +31,18 @@
           {% if user.is_authenticated %}
               Welcome, <strong>{{user.username}}</strong>.
               {% if user.is_staff %}
-                <a href="{% url admin:index %}">Admin</a> /
+                / <a href="{% url admin:index %}">Admin</a>
               {% endif %}
-              <a href="{% url django.contrib.auth.views.logout %}?next={{request.path}}">Log out</a>
+              / <a href="{% url django.contrib.auth.views.logout %}?next={{request.path}}">Log Out</a>
               {% get_flatpages as flatpages %}
               {% for page in flatpages %}
                 / <a href="{{ page.url }}">{{ page.title }}</a>
               {% endfor %}
+              / <a href="{% url auth_password_change %}">Change Password</a>
           {% else %}
-              <a href="{% url django.contrib.auth.views.login %}?next={{request.path}}">Log in</a> /
-              <a href="{% url registration_register %}">Register</a>
+              <a href="{% url django.contrib.auth.views.login %}?next={{request.path}}">Log In</a>
+              / <a href="{% url registration_register %}">Register</a>
+              / <a href="{% url auth_password_reset %}">Reset Password</a>
           {% endif %}
         </div>
     </div>
